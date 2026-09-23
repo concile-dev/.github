@@ -1,49 +1,67 @@
 <div align="center">
+  <img src="https://raw.githubusercontent.com/concile-dev/concile/main/.github/assets/hero.svg" alt="Concile. Your entire backend. Realtime by default." width="100%" />
+</div>
 
-# helipod
+<div align="center">
 
-**The open-source, self-hostable reactive backend.**
+**Your entire backend. Realtime by default.**
 
-Write TypeScript functions. Get a transactional database, live-updating queries,
-auth, file storage, scheduling, and durable workflows — on your own infrastructure.
+Concile is the open source backend you host yourself. You write one plain TypeScript function.
+Every screen that shows its data updates on its own. No polling, no cache to clear, no glue code.
+
+[Website](https://concile.dev) · [Docs](https://concile.dev/docs) · [Quickstart](https://concile.dev/docs/get-started/quickstart) · [Blog](https://concile.dev/blog)
 
 </div>
 
 ---
 
-```ts
-// helipod/messages.ts
-export const send = mutation({
-  args: { channel: v.id("channels"), body: v.string() },
-  handler: async (ctx, { channel, body }) => {
-    await ctx.db.insert("messages", { channel, body });
-  },
-});
+## Ten lines, no step three
 
-// Every subscribed client sees the new message instantly. No polling, no cache juggling.
-const messages = useQuery(api.messages.list, { channel });
+On the server, plain functions in one file:
+
+```ts
+// concile/tasks.ts
+import { query, mutation } from "./_generated/server";
+
+export const list = query(async (ctx) => ctx.db.query("tasks").collect());
+
+export const add = mutation(async (ctx, { text }) => {
+  await ctx.db.insert("tasks", { text, done: false });
+});
 ```
 
-## Why helipod
+In the browser, one hook that stays live:
 
-- ⚡ **Reactive by default** — queries are live subscriptions; when data changes, connected clients are pushed fresh results over WebSocket
-- 🔒 **Transactional** — every mutation is one serializable transaction with optimistic concurrency
-- 🧰 **Batteries included** — auth (OAuth, passkeys, MFA), file storage, crons, durable workflows with compensation, triggers, notifications
-- 📴 **Offline-ready client** — optimistic updates and a durable outbox with exactly-once replay
-- 📦 **Deploy anywhere** — `docker compose up`, a single compiled binary, or your own Postgres; SQLite for zero-config local dev
-- 🔓 **No lock-in** — your data, your infra, fully portable
+```tsx
+const tasks = useQuery(api.tasks.list);
+// Call add() from any device, anywhere. This list re-renders here at once.
+```
+
+## What you get
+
+- **Live queries.** Every query is a subscription. When the data behind it changes, connected clients get fresh results over WebSocket.
+- **A transactional database.** Every mutation is one serializable transaction. SQLite for zero-config local dev, Postgres for production.
+- **Auth.** Sessions, email flows, OAuth, passkeys and MFA, built in.
+- **File storage.** S3 or local disk, behind one API.
+- **Cron jobs and durable workflows.** Multi-step work that survives restarts, with compensation on failure.
+- **Offline first.** Optimistic updates and a durable outbox that replays exactly once.
+- **A dashboard.** Data browser, logs and functions, in the same binary.
+- **Deploy anywhere.** A single compiled binary, `docker compose up`, Cloudflare Workers, or your own Postgres.
+- **100% open source, self-hosted.** There is no Concile cloud. Your data stays on your infrastructure.
 
 ## Get started
 
-| | |
-|---|---|
-| 🚀 **[helipod](https://github.com/helipod-sh/helipod)** | The monorepo — engine, CLI, client SDK, dashboard, and docs |
-
 ```bash
-bun add helipod           # or: npm install helipod
-helipod dev               # local engine + dashboard + hot reload
+npm i concile        # or: bun add concile
+npx concile dev      # watches your functions, serves live sync, boots the dashboard
 ```
 
-## License
+## Repositories
 
-Free to use and self-host under [FSL-1.1-Apache-2.0](https://fsl.software) — converts to Apache 2.0 after two years.
+| | |
+|---|---|
+| 🚀 **[concile](https://github.com/concile-dev/concile)** | The monorepo: engine, CLI, client SDK, dashboard, docs and the website |
+
+## Licence
+
+Free to use and self-host under [FSL-1.1-Apache-2.0](https://fsl.software). It converts to Apache 2.0 after two years.
